@@ -1,0 +1,68 @@
+การทดสอบ
+รันเซิร์ฟเวอร์
+
+bash
+คัดลอกโค้ด
+go run main.go
+ทดสอบด้วยคำขอ POST
+
+ใช้ REST Client (หรือ cURL):
+http
+คัดลอกโค้ด
+POST http://localhost:3000/api/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "message": "hello"
+}
+การตอบกลับ:
+json
+คัดลอกโค้ด
+{
+  "message": "pong"
+}
+ทดสอบคำขอ GET (หรือ Method อื่น)
+
+เรียก GET http://localhost:3000/api/
+การตอบกลับ:
+sql
+คัดลอกโค้ด
+Only POST method is allowed
+
+
+
+ตัวอย่างการตอบกลับ
+1. POST /api/ พร้อมข้อมูลที่ถูกต้อง
+คำขอ:
+json
+คัดลอกโค้ด
+{
+  "message": "hello"
+}
+การตอบกลับ:
+json
+คัดลอกโค้ด
+{
+  "message": "pong",
+  "timestamp": "2025-01-08T10:00:00Z"
+}
+2. POST /api/ แต่ไม่มีฟิลด์ message
+การตอบกลับ:
+json
+คัดลอกโค้ด
+{
+  "error": "Message field is required"
+}
+3. GET /api/
+การตอบกลับ:
+json
+คัดลอกโค้ด
+{
+  "error": "Method not allowed",
+  "allowed": "POST"
+}
+4. GET /
+การตอบกลับในเบราว์เซอร์:
+arduino
+คัดลอกโค้ด
+Welcome to the enhanced home page!
