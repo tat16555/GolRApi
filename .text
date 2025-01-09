@@ -66,3 +66,74 @@ json
 arduino
 คัดลอกโค้ด
 Welcome to the enhanced home page!
+
+
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+)
+
+type apiHandler struct{}
+
+// โครงสร้างสำหรับการถอดรหัส JSON
+type Ping struct {
+	Message string `json:"message"`
+}
+
+func (apiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// ตรวจสอบ Method ของคำขอ
+	if req.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "Only POST method is allowed")
+		return
+	}
+
+	// ถอดรหัส JSON จาก Body
+	var ping Ping
+	if err := json.NewDecoder(req.Body).Decode(&ping); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Invalid JSON format: %v", err)
+		return
+	}
+
+	// Log ข้อความที่ได้รับ
+	log.Println("Received message:", ping.Message)
+
+	// ตอบกลับ JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(map[string]string{
+		"message": "pong",
+	}); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Failed to send response: %v", err)
+		return
+	}
+}
+
+func main() {
+	mux := http.NewServeMux()
+
+	// จัดการเส้นทาง /api/
+	mux.Handle("/api/", apiHandler{})
+
+	// จัดการเส้นทาง /
+	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		if req.URL.Path != "/" {
+			http.NotFound(w, req)
+			return
+		}
+		fmt.Fprintf(w, "Welcome to the home page!")
+	})
+
+	// เริ่มต้นเซิร์ฟเวอร์บนพอร์ต 3000
+	fmt.Println("Server is running on http://localhost:3000")
+	err := http.ListenAndServe(":3000", mux)
+	if err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
+}
